@@ -170,7 +170,7 @@ class MyFrame(wx.Frame):
         for match in matches:
             mark = match[1]
             cell_index = int(match[2])
-            print(f"move: {mark}, 第{cell_index+1}格")
+            print(f"记号: {mark}, 第{cell_index+1}格")
 
 
     # 添加玩家键
