@@ -16,14 +16,14 @@ class PlayerFrame(wx.Frame):
         # 创建单选按钮
         self.radio_basic_info = wx.RadioButton(panel, label='基本信息', style=wx.RB_GROUP)
         self.radio_win = wx.RadioButton(panel, label='胜局')
-        self.radio_draw = wx.RadioButton(panel, label='平局')
+        self.radio_tie = wx.RadioButton(panel, label='平局')
         self.radio_lose = wx.RadioButton(panel, label='败局')
         
         # 添加单选按钮到水平框架布局管理器中
         hbox_radio.AddStretchSpacer(1)
         hbox_radio.Add(self.radio_basic_info, 0, wx.ALL, 5)
         hbox_radio.Add(self.radio_win, 0, wx.ALL, 5)
-        hbox_radio.Add(self.radio_draw, 0, wx.ALL, 5)
+        hbox_radio.Add(self.radio_tie, 0, wx.ALL, 5)
         hbox_radio.Add(self.radio_lose, 0, wx.ALL, 5)
         hbox_radio.AddStretchSpacer(1)
         
@@ -59,31 +59,31 @@ class PlayerFrame(wx.Frame):
         # 绑定单选按钮事件
         self.radio_basic_info.Bind(wx.EVT_RADIOBUTTON, self.on_radio_basic_info)
         self.radio_win.Bind(wx.EVT_RADIOBUTTON, self.on_radio_win)
-        self.radio_draw.Bind(wx.EVT_RADIOBUTTON, self.on_radio_draw)
+        self.radio_tie.Bind(wx.EVT_RADIOBUTTON, self.on_radio_tie)
         self.radio_lose.Bind(wx.EVT_RADIOBUTTON, self.on_radio_lose)
         
         # 设置窗口属性
         self.SetTitle('玩家查看')
-        self.SetSize((600, 400))
+        self.SetSize((629, 400))
         self.Centre()
         
     def init_list1(self):
-        # 初始化列表框显示内容 (编号、用户名、密码、胜局、平局、败局)
+        # 初始化列表框显示内容 (编号、用户名、密码、胜局、平局、败局、得分)
         self.list_ctrl.ClearAll()
-        self.list_ctrl.InsertColumn(0, '编号', width=100)
-        self.list_ctrl.InsertColumn(1, '用户名', width=100)
+        self.list_ctrl.InsertColumn(0, '编号', width=80)
+        self.list_ctrl.InsertColumn(1, '玩家名', width=100)
         self.list_ctrl.InsertColumn(2, '密码', width=100)
-        self.list_ctrl.InsertColumn(3, '胜局', width=100)
-        self.list_ctrl.InsertColumn(4, '平局', width=100)
-        self.list_ctrl.InsertColumn(5, '败局', width=100)
+        self.list_ctrl.InsertColumn(3, '胜局', width=80)
+        self.list_ctrl.InsertColumn(4, '平局', width=80)
+        self.list_ctrl.InsertColumn(5, '败局', width=80)
+        self.list_ctrl.InsertColumn(6, '得分', width=80)
     
     def init_list2(self):
-        # 初始化列表框显示内容 (对局编号、位置顺序、开始时间、分数)
+        # 初始化列表框显示内容 (对局编号、对局详情、时长)
         self.list_ctrl.ClearAll()
-        self.list_ctrl.InsertColumn(0, '对局编号', width=100)
-        self.list_ctrl.InsertColumn(1, '位置顺序', width=250)
-        self.list_ctrl.InsertColumn(2, '开始时间', width=150)
-        self.list_ctrl.InsertColumn(3, '分数', width=100)
+        self.list_ctrl.InsertColumn(0, '游戏编号', width=100)
+        self.list_ctrl.InsertColumn(1, '对局详情', width=350)
+        self.list_ctrl.InsertColumn(2, '时长', width=150)
     
     def on_radio_basic_info(self, event):
         self.init_list1()
@@ -91,7 +91,7 @@ class PlayerFrame(wx.Frame):
     def on_radio_win(self, event):
         self.init_list2()
         
-    def on_radio_draw(self, event):
+    def on_radio_tie(self, event):
         self.init_list2()
         
     def on_radio_lose(self, event):
