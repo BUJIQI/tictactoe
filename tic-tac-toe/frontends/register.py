@@ -1,4 +1,5 @@
 import wx
+import register_or_login
 
 class RegisterWindow(wx.Frame):
     def __init__(self, parent, title):
@@ -52,7 +53,7 @@ class RegisterWindow(wx.Frame):
     def onRegister(self, e):
         userid = self.inputTextUserID.GetValue()
         password = self.inputTextPassword.GetValue()
-        
+    
         if len(userid.strip()) == 0:
             wx.MessageBox('请输入用户名！')
             self.inputTextUserID.SetFocus()
@@ -61,13 +62,22 @@ class RegisterWindow(wx.Frame):
             wx.MessageBox('请输入注册密码！')
             self.inputTextPassword.SetFocus()
             return None
-        
+    
+    # 在注册成功后返回登录界面
+        wx.MessageBox('注册成功！')
+        self.OnReturnLogin(e)
+    
+    def OnReturnLogin(self, e):  
+    # 返回登录界面的逻辑  
+        register_or_login_frame = register_or_login.MyFrame(None, title='井字棋')
+        register_or_login_frame.Show()
+        self.Close()
 
-        
+                
     def onCancel(self, e):
         self.Close(True)
         
-
+        
 if __name__ == '__main__':
     app = wx.App(redirect=False)
     frame = RegisterWindow(None, "注册")
