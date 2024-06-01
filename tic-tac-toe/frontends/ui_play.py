@@ -12,18 +12,20 @@ from tic_tac_toe.game.renderers import Renderer
 from window.renderers import Window, WindowRenderer
 from window.players import WindowPlayer
 import re
+import login
 
 # 创建一个事件，用于更新时间
 UpdateTimeEvent, EVT_UPDATE_TIME = wx.lib.newevent.NewEvent()
 
 
 class MyFrame(wx.Frame):
-    def __init__(self, *args, **kw):
-        super(MyFrame, self).__init__(*args, **kw)
+    def __init__(self, parent, title, id):
+        super(MyFrame, self).__init__(parent, title=title, size=(300, 250))
 
         # 设置窗口标题和大小
         self.SetSize((600, 400))
         self.Center()
+        self.id = id
 
         # 创建面板
         panel = wx.Panel(self)
@@ -35,7 +37,7 @@ class MyFrame(wx.Frame):
         left_panel = wx.Panel(panel)
         vbox_left = wx.BoxSizer(wx.VERTICAL)
         text_inf = wx.StaticText(left_panel, label="我的信息")
-        text_id = wx.StaticText(left_panel, label="Id:")
+        text_id = wx.StaticText(left_panel, label=f"Id:{self.id}")
         text_score = wx.StaticText(left_panel, label="Points:")
         vbox_left.Add(text_inf, 0, wx.ALL, 5)
         vbox_left.Add(text_id, 0, wx.ALL, 5)
@@ -81,6 +83,8 @@ class MyFrame(wx.Frame):
         vbox_right.Add(self.radio2, 0, wx.ALL, 5)
         self.button = wx.Button(right_panel, label='添加玩家')
         vbox_right.Add(self.button, 0, wx.ALL, 5)
+        self.p2_inf = wx.StaticText(right_panel, label=" ")
+        vbox_right.Add(self.p2_inf, 0, wx.ALL, 5)
         right_panel.SetSizer(vbox_right)
         grid_sizer.Add(right_panel, pos=(0, 6), span=(1, 1), flag=wx.EXPAND | wx.ALL, border=15)
 
@@ -175,8 +179,28 @@ class MyFrame(wx.Frame):
 
     # 添加玩家键
     def add_player(self, event):
-        self.radio1.SetValue(False)
-        self.radio2.SetValue(False)
+        login_frame = Login(None, title='登录', button=self.button, p2_inf=self.p2_inf)
+        login_frame.Show()
+
+
+
+
+
+class Login(login.LoginWindow):
+    def __init__(self, parent, title, button, p2_inf):
+        super(Login, self).__init__(parent, title=title)
+        self.button = button
+        self.p2_inf = p2_inf
+
+
+    def on_login(self, e):
+        self.userid = self.inputTextUserID.GetValue()
+        self.password = self.inputTextPassword.GetValue()
+        self.Close()
+        self.button.Destroy()
+        self.p2_inf.SetLabelText(f'玩家2  ID:{self.userid}')
+
+
 
 
 class MyApp(wx.App):
