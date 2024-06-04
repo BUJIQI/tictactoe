@@ -1,5 +1,6 @@
 import wx
 import register_or_login
+import data as db
 
 class RegisterWindow(wx.Frame):
     def __init__(self, parent, title):
@@ -53,6 +54,7 @@ class RegisterWindow(wx.Frame):
     def onRegister(self, e):
         userid = self.inputTextUserID.GetValue()
         password = self.inputTextPassword.GetValue()
+        UserType = self.rboxUserType.GetStringSelection()
     
         if len(userid.strip()) == 0:
             wx.MessageBox('请输入用户名！')
@@ -64,8 +66,15 @@ class RegisterWindow(wx.Frame):
             return None
     
     # 在注册成功后返回登录界面
-        wx.MessageBox('注册成功！')
-        self.OnReturnLogin(e)
+        conn = db.get_or_create_db('tictactoe.db')  
+        try:  
+           if db.register(userid, password,UserType):  
+               wx.MessageBox('注册成功！')  
+               self.OnReturnLogin(e)  
+           else:  
+               wx.MessageBox('注册失败！')  
+        finally:  
+           conn.close()
     
     def OnReturnLogin(self, e):  
     # 返回登录界面的逻辑  
