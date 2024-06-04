@@ -12,11 +12,13 @@ from tic_tac_toe.game.renderers import Renderer
 from window.renderers import Window, WindowRenderer
 from window.players import WindowPlayer
 import re
-import login
+import data as db
+
 
 # 创建一个事件，用于更新时间
 UpdateTimeEvent, EVT_UPDATE_TIME = wx.lib.newevent.NewEvent()
-
+global conn
+conn = db.get_or_create_db('tictactoe.db')
 
 class MyFrame(wx.Frame):
     def __init__(self, parent, title, id):
@@ -120,11 +122,15 @@ class MyFrame(wx.Frame):
         # 根据单选按钮的选择创建玩家
         player1 = WindowPlayer(Mark("X"), self.events)
         self.player1 = player1
+        global p2_id
         if self.radio1.GetValue():
             player2 = RandomComputerPlayer(Mark("O"))
+            self.p2_id = 111
         elif self.radio2.GetValue():
             player2 = MinimaxComputerPlayer(Mark("O"))
+            self.p2_id = 999
         else:
+            self.p2_id = 0
             player2 = WindowPlayer(Mark("O"), self.events)
         self.player2 = player2
         renderer = WindowRenderer(self)
@@ -147,6 +153,7 @@ class MyFrame(wx.Frame):
             global elapsed_time
             elapsed_time = datetime.now() - self.start_time
             wx.PostEvent(self, UpdateTimeEvent(elapsed_time=elapsed_time))
+            elapsed_time = str(elapsed_time)
 
 
     def OnUpdateTime(self, event):
@@ -167,18 +174,24 @@ class MyFrame(wx.Frame):
         else:
             self.result_text.SetLabelText("Ties!")
             result = 'Tie'
-        print(result)
-        print(elapsed_time)
+        print(f'P1:{self.id}')
+        print(f'P2:{p2_id}')
+        print(f'winner:{result}')
+        print(f'time:{str(elapsed_time)}')
         regex = r"Move\(mark=<([A-Za-z.]+): '([XO])'>, cell_index=(\d+)"
         matches = re.findall(regex, str(movelist))
+        mark_log = ''
         for match in matches:
             mark = match[1]
             cell_index = int(match[2])
-            print(f"记号: {mark}, 第{cell_index+1}格")
-
+            mark_log += mark + str(cell_index+1) + ','
+        print(f'对局细节：{mark_log}')
+        db.insert_game_detail(self.id, 'test1', p2_id, 'test2', mark_log, str(elapsed_time), result)
 
     # 添加玩家键
     def add_player(self, event):
+        self.radio1.SetValue(False)
+        self.radio2.SetValue(False)
         login_frame = Login(None, title='登录', button=self.button, p2_inf=self.p2_inf)
         login_frame.Show()
 
@@ -186,6 +199,8 @@ class MyFrame(wx.Frame):
 
 
 
+
+import login
 class Login(login.LoginWindow):
     def __init__(self, parent, title, button, p2_inf):
         super(Login, self).__init__(parent, title=title)
@@ -199,6 +214,8 @@ class Login(login.LoginWindow):
         self.Close()
         self.button.Destroy()
         self.p2_inf.SetLabelText(f'玩家2  ID:{self.userid}')
+        global p2_id
+        p2_id = int(self.userid)
 
 
 
