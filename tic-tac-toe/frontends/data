@@ -4,41 +4,41 @@ import sqlite3
 
 DBFILE = 'tictactoe.db'  # 井字棋sqlite3数据库，全局变量
 
-def get_or_create_db(db_filename):
-    """打开本地数据库文件db_filename，并返回数据库连接con
-    如果本地数据库文件db_filename不存在，则创建数据库和相关表"""
-    if os.path.exists(db_filename):
-        con = sqlite3.connect(db_filename)
-        print(f"Database {db_filename} already exists, connected successfully.")
-    else:
-        con = sqlite3.connect(db_filename)
-        # 创建玩家表
-        sql_create_Player = '''CREATE TABLE Player (
-                                PLAYERID INTEGER PRIMARY KEY AUTOINCREMENT,
-                                PLAYERNAME NVARCHAR(50) NOT NULL,
-                                PASSWORD VARCHAR(50) NOT NULL,
-                                WIN INTEGER,
-                                TIE INTEGER,
-                                LOSE INTEGER,
-                                POINT INTEGER
-                              );'''
+def get_or_create_db(db_filename):  
+    # 尝试连接数据库，如果数据库不存在，SQLite 会自动创建它  
+    con = sqlite3.connect(db_filename)  
+    # 检查表是否存在并创建它们（如果需要）  
+    cursor = con.cursor()  
+    cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='Player';")  
+    if cursor.fetchone() is None:  
+        sql_create_Player = '''CREATE TABLE Player (  
+                                PLAYERID INTEGER PRIMARY KEY AUTOINCREMENT,  
+                                PLAYERNAME TEXT NOT NULL,  
+                                PASSWORD TEXT NOT NULL,  
+                                WIN INTEGER,  
+                                TIE INTEGER,  
+                                LOSE INTEGER,  
+                                POINT INTEGER  
+                              );'''  
         con.execute(sql_create_Player)
         
-        # 创建管理员表
-        sql_create_Admin = '''CREATE TABLE Admin (
-                                ADMINID INTEGER PRIMARY KEY AUTOINCREMENT,
-                                ADMINNAME NVARCHAR(50) NOT NULL,
-                                PASSWORD NVARCHAR(50) NOT NULL
-                              );'''
-        con.execute(sql_create_Admin)
+    cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='Admin';")  
+    if cursor.fetchone() is None:  
+        sql_create_Admin = '''CREATE TABLE Admin (  
+                                ADMINID INTEGER PRIMARY KEY AUTOINCREMENT,  
+                                ADMINNAME TEXT NOT NULL,  
+                                PASSWORD TEXT NOT NULL  
+                              );'''  
+        con.execute(sql_create_Admin) 
         
-        # 创建游戏细节表
+    cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='GameDetail';")  
+    if cursor.fetchone() is None:     
         sql_create_GameDetail = '''CREATE TABLE GameDetail (
                                     GAMEID INTEGER PRIMARY KEY AUTOINCREMENT,
-                                    PLAYERID1 INTEGER,
-                                    PLAYERID2 INTEGER,
-                                    PLAYERNAME1 NVARCHAR(50),
-                                    PLAYERNAME2 NVARCHAR(50),
+                                    PLAYERID1 INTEGER NOT NULL,
+                                    PLAYERNAME1 NVARCHAR(50) NOT NULL,
+                                    PLAYERID2 INTEGER NOT NULL,
+                                    PLAYERNAME2 NVARCHAR(50) NOT NULL,
                                     DETAILTEXT NVARCHAR(150),
                                     TIME NVARCHAR(50),
                                     WINNER NVARCHAR(50),
@@ -46,5 +46,49 @@ def get_or_create_db(db_filename):
                                     FOREIGN KEY (PLAYERID2) REFERENCES Player(PLAYERID)
                                   );'''
         con.execute(sql_create_GameDetail)       
-        con.commit()
-    return con
+    return con 
+  
+    
+def register(userid, password, UserType):  
+    try:  
+        con = get_or_create_db(DBFILE)  
+        if UserType == "玩家":    
+            sql = "INSERT INTO Player (PLAYERNAME, PASSWORD, WIN, TIE, LOSE, POINT) VALUES (?, ?, 0, 0, 0, 0);"    
+        elif UserType == "管理员":    
+            sql = "INSERT INTO Admin (ADMINNAME, PASSWORD) VALUES (?, ?);"    
+        else:    
+            raise ValueError(f"Invalid UserType: {UserType}")   
+        con.execute(sql, (userid, password))  
+        con.commit()  
+        return True  # 注册成功返回 True  
+    except (ValueError, sqlite3.Error) as e:  
+        print(f"注册失败: {e}")  
+        return False  # 注册失败返回 False  
+    finally:  
+        con.close() 
+
+def login(con, userid, password):
+    cur = con.cursor()
+    cur.execute("SELECT * FROM Player WHERE PLAYERNAME = ? AND PASSWORD = ?", (userid, password))
+    player = cur.fetchone()
+    
+    if player:
+        print("Player logged in successfully.")
+        return player
+    else:
+        cur.execute("SELECT * FROM Admin WHERE ADMINNAME = ? AND PASSWORD = ?", (userid, password))
+        admin = cur.fetchone()
+        
+        if admin:
+            print("Admin logged in successfully.")
+            return admin
+        else:
+            print("Login failed. User not found.")
+            return None
+
+# Connect to database
+db_filename = "tictactoe.db"
+con = sqlite3.connect(db_filename)
+
+
+con.close()
