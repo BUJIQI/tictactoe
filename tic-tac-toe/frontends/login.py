@@ -49,11 +49,11 @@ class LoginWindow(wx.Frame):
         panel.SetSizer(topSizer)
         topSizer.Fit(self)
 
-        self.Bind(wx.EVT_BUTTON, self.onLogin, okBtn)
+        self.Bind(wx.EVT_BUTTON, self.on_login, okBtn)
         self.Bind(wx.EVT_BUTTON, self.onCancel, cancelBtn)
         self.Center()
         
-    def onLogin(self, e):
+    def on_login(self, e):
         userid = self.inputTextUserID.GetValue()
         password = self.inputTextPassword.GetValue()
         UserType = self.rboxUserType.GetStringSelection()
@@ -76,13 +76,13 @@ class LoginWindow(wx.Frame):
                 wx.MessageBox('登录成功！')  
                 if self.rboxUserType.GetSelection() == 0:
                     if userid and password:
-                        admin_main_frame = admin_main.TicTacToeAdminFrame(None, title='井字棋', username=userid)
+                        admin_main_frame = admin_main.TicTacToeAdminFrame(None, title='井字棋', username=userid, id=userid)
                         admin_main_frame.Show()
                         self.Close()
 
                 if self.rboxUserType.GetSelection() == 1:
                     if userid and password:
-                        player_main_frame = player_main.TicTacToePlayerFrame(None, title='井字棋', username=userid)
+                        player_main_frame = player_main.TicTacToePlayerFrame(None, title='井字棋', username=userid, id=userid)
                         player_main_frame.Show()
                         self.Close()# 这里可以跳转到游戏主界面或其他逻辑  
             else:  
