@@ -54,6 +54,104 @@ def get_or_create_db(db_filename):
         con.commit()
     return con
 
+############用户注册#########################################################################  
+def register(username, password, UserType):  
+    try:  
+        con = get_or_create_db(DBFILE)  
+        if UserType == "玩家":    
+            sql = "INSERT INTO Player (PLAYERNAME, PASSWORD, WIN, TIE, LOSE, POINT) VALUES (?, ?, 0, 0, 0, 0);"    
+        elif UserType == "管理员":    
+            sql = "INSERT INTO Admin (ADMINNAME, PASSWORD) VALUES (?, ?);"    
+        else:    
+            raise ValueError(f"Invalid UserType: {UserType}")   
+        con.execute(sql, (username, password))  
+        con.commit()  
+        return True  # 注册成功返回 True  
+    except (ValueError, sqlite3.Error) as e:  
+        print(f"注册失败: {e}")  
+        return False  # 注册失败返回 False  
+    finally:  
+        con.close() 
+
+############用户登录#########################################################################
+def login(username, password):
+    con = get_or_create_db(DBFILE)
+    try:
+        sql_pattern1 = '''SELECT PLAYERNAME, PASSWORD FROM Player WHERE PLAYERNAME="{0}" AND PASSWORD="{1}"'''
+        sql1 = sql_pattern1.format(username, password)
+        cur1 = con.execute(sql1)
+        row1 = cur1.fetchone()
+        
+        sql_pattern2 = '''SELECT ADMINNAME, PASSWORD FROM Admin WHERE ADMINNAME="{0}" AND PASSWORD="{1}"'''
+        sql2 = sql_pattern2.format(username, password)
+        cur2 = con.execute(sql2)
+        row2 = cur2.fetchone()
+        
+        if row1 or row2:
+            return row1[1]
+        else:
+            return False
+    finally:
+        con.close()
+
+############玩家查看#########################################################################
+def get_player_game_records_basic(player_name):  
+    # 这里应该使用参数化查询来避免SQL注入  
+    con = get_or_create_db(DBFILE)  
+    try:  
+        # 假设Players表中有一个名为PlayerName的列来存储用户名  
+        # 首先，我们需要找到该玩家的PlayerID  
+        cur = con.cursor()  
+        cur.execute("SELECT PlayerID FROM Player WHERE PlayerName=?", (player_name,))  
+        player_id = cur.fetchone()  
+        if player_id:  
+            player_id = player_id[0]  # 提取PlayerID，它可能是一个元组  
+            # 然后，使用PlayerID查询游戏记录  
+            cur.execute("SELECT PLAYERID,PLAYERNAME,PASSWORD, Win, Tie, Lose, POINT FROM Player WHERE PlayerID=?", (player_id,))  
+            records = cur.fetchall()  
+            record_list = []
+            for record in records:
+                record_list.append(record)
+            return record_list 
+        else:  
+            return []  # 如果没有找到玩家，返回一个空列表  
+    finally:  
+        con.close()  
+
+def get_player_game_records(player_name):  
+    # 这个函数返回特定玩家的胜局、平局、败局的游戏记录统计信息  
+    con = get_or_create_db(DBFILE)  
+    result = {  
+        'wins': [],  
+        'ties': [],  
+        'losses': []  
+    }  
+      
+    try:  
+        cur = con.cursor()  
+        cur.execute("SELECT PlayerID FROM Player WHERE PlayerName=?", (player_name,))  
+        player_id = cur.fetchone()  
+          
+        if player_id:  
+            player_id = player_id[0]  # 确保player_id是一个值  
+              
+            # 查询胜局  
+            cur.execute("SELECT game_id, DETAILTEXT, TIME FROM GameDetail WHERE WINNER=?", (player_id,))  
+            result['wins'] = cur.fetchall()  
+              
+            # 查询平局（胜者和败者都是NULL，且玩家参与了比赛）  
+            cur.execute("SELECT game_id, DETAILTEXT, TIME FROM GameDetail WHERE WINNER IS NULL AND LOSER IS NULL AND player_id=?", (player_id,))  
+            result['ties'] = cur.fetchall()  
+              
+            # 查询败局  
+            cur.execute("SELECT game_id, DETAILTEXT, TIME FROM GameDetail WHERE LOSER=?", (player_id,))  
+            result['losses'] = cur.fetchall()  
+              
+    finally:  
+        con.close()  
+      
+    return result 
+
 ############管理员操作#########################################################################
 def check_player_id(player_id):
     """检查Player表中是否存在player_id"""
