@@ -1,9 +1,10 @@
 import wx
+import data as db
 
-class PlayerFrame(wx.Frame):
-    def __init__(self, *args, **kw):
-        super(PlayerFrame, self).__init__(*args, **kw)
-        
+class PlayerFrame(wx.Frame):  
+    def __init__(self, player_name, title="Player Information", *args, **kw):  
+        super(PlayerFrame, self).__init__(None, title=title, *args, **kw)  
+        self.player_name = player_name  
         # 创建面板
         panel = wx.Panel(self)
         
@@ -52,10 +53,7 @@ class PlayerFrame(wx.Frame):
         
         # 设置面板的布局管理器
         panel.SetSizer(vbox)
-        
-        # 初始化列表框显示内容
-        self.init_list1()
-        
+    
         # 绑定单选按钮事件
         self.radio_basic_info.Bind(wx.EVT_RADIOBUTTON, self.on_radio_basic_info)
         self.radio_win.Bind(wx.EVT_RADIOBUTTON, self.on_radio_win)
@@ -77,28 +75,67 @@ class PlayerFrame(wx.Frame):
         self.list_ctrl.InsertColumn(4, '平局', width=80)
         self.list_ctrl.InsertColumn(5, '败局', width=80)
         self.list_ctrl.InsertColumn(6, '得分', width=80)
-    
+              
+
     def init_list2(self):
         # 初始化列表框显示内容 (对局编号、对局详情、时长)
         self.list_ctrl.ClearAll()
         self.list_ctrl.InsertColumn(0, '游戏编号', width=100)
         self.list_ctrl.InsertColumn(1, '对局详情', width=350)
-        self.list_ctrl.InsertColumn(2, '时长', width=150)
-    
-    def on_radio_basic_info(self, event):
-        self.init_list1()
-        
-    def on_radio_win(self, event):
-        self.init_list2()
-        
+        self.list_ctrl.InsertColumn(2, '时长', width=150)  
+  
+  
+    def on_radio_basic_info(self, event): 
+         self.init_list1() 
+         game_records =db.get_player_game_records_basic(self.player_name)
+         self.list_ctrl.DeleteAllItems()
+         index = 0
+         for record in game_records:
+             self.list_ctrl.InsertItem(index, record[0])
+             self.list_ctrl.SetItem(index, 1, record[1])
+             self.list_ctrl.SetItem(index, 2, record[2])
+             self.list_ctrl.SetItem(index, 3, record[3])
+             self.list_ctrl.SetItem(index, 4, record[4])
+             self.list_ctrl.SetItem(index, 5, record[5])
+             self.list_ctrl.SetItem(index, 6, record[6])
+             index += 1
+  
+    def on_radio_win(self, event):  
+        self.init_list2()  
+        game_records =db.get_player_game_records(self.player_name)  
+        self.update_list_ctrl(game_records['wins'], '胜局')  
+  
     def on_radio_tie(self, event):
         self.init_list2()
-        
+        game_records =db.get_player_game_records(self.player_name)  
+        self.update_list_ctrl(game_records['ties'], '平局')  
+  
     def on_radio_lose(self, event):
         self.init_list2()
-        
+        game_records =db.get_player_game_records(self.player_name)  
+        self.update_list_ctrl(game_records['losses'], '败局')  
+  
+    def update_list_ctrl(self, result, category):    
+        index = 0  
+        for game_id, detail_text, time in result:  
+            # 更新列表控件的列，这里需要根据实际情况调整列的数量和内容  
+            self.list_ctrl.InsertItem(index, str(game_id))  # 游戏编号  
+            self.list_ctrl.SetItem(index, 1, detail_text)   # 对局详情  
+            self.list_ctrl.SetItem(index, 2, time)         # 时长        
+            index += 1  
+            
     def on_exit(self, event):
         self.Close()
+   
+  
+# 示例用法   
+if __name__ == "__main__":  
+    app = wx.App(False)  
+    frame = PlayerFrame('PlayerNameExample', title='玩家查看')  
+    frame.Show()  
+    app.MainLoop()
+    
+
         
 class MyApp(wx.App):
     def OnInit(self):
@@ -110,5 +147,3 @@ class MyApp(wx.App):
 if __name__ == '__main__':
     app = MyApp()
     app.MainLoop()
-
-
