@@ -15,7 +15,7 @@ class LoginWindow(wx.Frame):
         btnSizer = wx.BoxSizer(wx.HORIZONTAL)
         
         labelUser = wx.StaticText(panel, label="用户名:")
-        self.inputTextUserID = wx.TextCtrl(panel)
+        self.inputTextUserName = wx.TextCtrl(panel)
         
         labelPassword = wx.StaticText(panel, label="密码:")
         self.inputTextPassword = wx.TextCtrl(panel, style=wx.TE_PASSWORD)
@@ -34,7 +34,7 @@ class LoginWindow(wx.Frame):
         btnSizer = wx.BoxSizer(wx.HORIZONTAL)
 
         userSizer.Add(labelUser, 0, wx.ALL, 5)
-        userSizer.Add(self.inputTextUserID, 0, wx.ALL, 5)
+        userSizer.Add(self.inputTextUserName, 0, wx.ALL, 5)
         passwordSizer.Add(labelPassword, 0, wx.ALL, 5)
         passwordSizer.Add(self.inputTextPassword, 0, wx.ALL, 5)
         usertypeSizer.Add(self.rboxUserType)
@@ -49,18 +49,18 @@ class LoginWindow(wx.Frame):
         panel.SetSizer(topSizer)
         topSizer.Fit(self)
 
-        self.Bind(wx.EVT_BUTTON, self.on_login, okBtn)
+        self.Bind(wx.EVT_BUTTON, self.onLogin, okBtn)
         self.Bind(wx.EVT_BUTTON, self.onCancel, cancelBtn)
         self.Center()
         
-    def on_login(self, e):
-        userid = self.inputTextUserID.GetValue()
+    def onLogin(self, e):
+        username = self.inputTextUserName.GetValue()
         password = self.inputTextPassword.GetValue()
         UserType = self.rboxUserType.GetStringSelection()
         
-        if len(userid.strip()) == 0:
+        if len(username.strip()) == 0:
             wx.MessageBox('请输入用户名！')
-            self.inputTextUserID.SetFocus()
+            self.inputTextUserName.SetFocus()
             return None
         if len(password.strip()) == 0:
             wx.MessageBox('请输入登录密码！')
@@ -70,25 +70,23 @@ class LoginWindow(wx.Frame):
         # 这里暂时写为当用户名密码不为空
         
                 
-        conn = db.get_or_create_db('tictactoe.db')  
-        try:  
-            if db.login(conn,userid, password):  
-                wx.MessageBox('登录成功！')  
-                if self.rboxUserType.GetSelection() == 0:
-                    if userid and password:
-                        admin_main_frame = admin_main.TicTacToeAdminFrame(None, title='井字棋', username=userid, id=userid)
-                        admin_main_frame.Show()
-                        self.Close()
+ 
+        if db.login(username, password):  
+            wx.MessageBox('登录成功！')  
+            if self.rboxUserType.GetSelection() == 0:
+                if username and password:
+                    admin_main_frame = admin_main.TicTacToeAdminFrame(None, title='井字棋', username=username)
+                    admin_main_frame.Show()
+                    self.Close()
 
-                if self.rboxUserType.GetSelection() == 1:
-                    if userid and password:
-                        player_main_frame = player_main.TicTacToePlayerFrame(None, title='井字棋', username=userid, id=userid)
-                        player_main_frame.Show()
-                        self.Close()# 这里可以跳转到游戏主界面或其他逻辑  
-            else:  
-                wx.MessageBox('登录失败，请检查您的用户名和密码！')  
-        finally:  
-            conn.close()
+            if self.rboxUserType.GetSelection() == 1:
+                if username and password:
+                    player_main_frame = player_main.TicTacToePlayerFrame(None, title='井字棋', username=username)
+                    player_main_frame.Show()
+                    self.Close()# 这里可以跳转到游戏主界面或其他逻辑  
+        else:  
+            wx.MessageBox('登录失败，请检查您的用户名和密码！')  
+
 
         
     def onCancel(self, e):
