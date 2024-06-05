@@ -2,7 +2,7 @@
 import os
 import sqlite3
 
-DBFILE = 'tictactoe6.db'  # 井字棋sqlite3数据库，全局变量
+DBFILE = 'tictactoe.db'  # 井字棋sqlite3数据库，全局变量
 
 def get_or_create_db(db_filename):
     """打开本地数据库文件db_filename，并返回数据库连接con
@@ -25,9 +25,10 @@ def get_or_create_db(db_filename):
                               );'''
         con.execute(sql_create_Player)
         sql_insert_Player = '''INSERT INTO Player (PLAYERNAME, PASSWORD, WIN, TIE, LOSE, POINT) 
-                               VALUES ('Computer', 'Computer', 0, 0, 0, 0);'''
+                               VALUES ('RandomComputer', 'RandomComputer', 0, 0, 0, 0),     
+                                    ('MinimaxComputer', 'MinimaxComputer', 0, 0, 0, 0);'''
         con.execute(sql_insert_Player)
-        
+
         # 创建管理员表
         sql_create_Admin = '''CREATE TABLE Admin (
                                 ADMINID INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -35,7 +36,7 @@ def get_or_create_db(db_filename):
                                 PASSWORD NVARCHAR(50) NOT NULL
                               );'''
         con.execute(sql_create_Admin)
-        
+
         # 创建游戏细节表
         sql_create_GameDetail = '''CREATE TABLE GameDetail (
                                     GAMEID INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -50,28 +51,28 @@ def get_or_create_db(db_filename):
                                     FOREIGN KEY (PLAYERID1) REFERENCES Player(PLAYERID),
                                     FOREIGN KEY (PLAYERID2) REFERENCES Player(PLAYERID)
                                   );'''
-        con.execute(sql_create_GameDetail)       
+        con.execute(sql_create_GameDetail)
         con.commit()
     return con
 
-############用户注册#########################################################################  
-def register(username, password, UserType):  
-    try:  
-        con = get_or_create_db(DBFILE)  
-        if UserType == "玩家":    
-            sql = "INSERT INTO Player (PLAYERNAME, PASSWORD, WIN, TIE, LOSE, POINT) VALUES (?, ?, 0, 0, 0, 0);"    
-        elif UserType == "管理员":    
-            sql = "INSERT INTO Admin (ADMINNAME, PASSWORD) VALUES (?, ?);"    
-        else:    
-            raise ValueError(f"Invalid UserType: {UserType}")   
-        con.execute(sql, (username, password))  
-        con.commit()  
-        return True  # 注册成功返回 True  
-    except (ValueError, sqlite3.Error) as e:  
-        print(f"注册失败: {e}")  
-        return False  # 注册失败返回 False  
-    finally:  
-        con.close() 
+############用户注册#########################################################################
+def register(username, password, UserType):
+    try:
+        con = get_or_create_db(DBFILE)
+        if UserType == "玩家":
+            sql = "INSERT INTO Player (PLAYERNAME, PASSWORD, WIN, TIE, LOSE, POINT) VALUES (?, ?, 0, 0, 0, 0);"
+        elif UserType == "管理员":
+            sql = "INSERT INTO Admin (ADMINNAME, PASSWORD) VALUES (?, ?);"
+        else:
+            raise ValueError(f"Invalid UserType: {UserType}")
+        con.execute(sql, (username, password))
+        con.commit()
+        return True  # 注册成功返回 True
+    except (ValueError, sqlite3.Error) as e:
+        print(f"注册失败: {e}")
+        return False  # 注册失败返回 False
+    finally:
+        con.close()
 
 ############用户登录#########################################################################
 def login(username, password):
@@ -81,12 +82,12 @@ def login(username, password):
         sql1 = sql_pattern1.format(username, password)
         cur1 = con.execute(sql1)
         row1 = cur1.fetchone()
-        
+
         sql_pattern2 = '''SELECT ADMINNAME, PASSWORD FROM Admin WHERE ADMINNAME="{0}" AND PASSWORD="{1}"'''
         sql2 = sql_pattern2.format(username, password)
         cur2 = con.execute(sql2)
         row2 = cur2.fetchone()
-        
+
         if row1 or row2:
             return row1[1]
         else:
@@ -95,62 +96,62 @@ def login(username, password):
         con.close()
 
 ############玩家查看#########################################################################
-def get_player_game_records_basic(player_name):  
-    # 这里应该使用参数化查询来避免SQL注入  
-    con = get_or_create_db(DBFILE)  
-    try:  
-        # 假设Players表中有一个名为PlayerName的列来存储用户名  
-        # 首先，我们需要找到该玩家的PlayerID  
-        cur = con.cursor()  
-        cur.execute("SELECT PlayerID FROM Player WHERE PlayerName=?", (player_name,))  
-        player_id = cur.fetchone()  
-        if player_id:  
-            player_id = player_id[0]  # 提取PlayerID，它可能是一个元组  
-            # 然后，使用PlayerID查询游戏记录  
-            cur.execute("SELECT PLAYERID,PLAYERNAME,PASSWORD, Win, Tie, Lose, POINT FROM Player WHERE PlayerID=?", (player_id,))  
-            records = cur.fetchall()  
+def get_player_game_records_basic(player_name):
+    # 这里应该使用参数化查询来避免SQL注入
+    con = get_or_create_db(DBFILE)
+    try:
+        # 假设Players表中有一个名为PlayerName的列来存储用户名
+        # 首先，我们需要找到该玩家的PlayerID
+        cur = con.cursor()
+        cur.execute("SELECT PlayerID FROM Player WHERE PlayerName=?", (player_name,))
+        player_id = cur.fetchone()
+        if player_id:
+            player_id = player_id[0]  # 提取PlayerID，它可能是一个元组
+            # 然后，使用PlayerID查询游戏记录
+            cur.execute("SELECT PLAYERID,PLAYERNAME,PASSWORD, Win, Tie, Lose, POINT FROM Player WHERE PlayerID=?", (player_id,))
+            records = cur.fetchall()
             record_list = []
             for record in records:
                 record_list.append(record)
-            return record_list 
-        else:  
-            return []  # 如果没有找到玩家，返回一个空列表  
-    finally:  
-        con.close()  
+            return record_list
+        else:
+            return []  # 如果没有找到玩家，返回一个空列表
+    finally:
+        con.close()
 
-def get_player_game_records(player_name):  
-    # 这个函数返回特定玩家的胜局、平局、败局的游戏记录统计信息  
-    con = get_or_create_db(DBFILE)  
-    result = {  
-        'wins': [],  
-        'ties': [],  
-        'losses': []  
-    }  
-      
-    try:  
-        cur = con.cursor()  
-        cur.execute("SELECT PlayerID FROM Player WHERE PlayerName=?", (player_name,))  
-        player_id = cur.fetchone()  
-          
-        if player_id:  
-            player_id = player_id[0]  # 确保player_id是一个值  
-              
-            # 查询胜局  
-            cur.execute("SELECT game_id, DETAILTEXT, TIME FROM GameDetail WHERE WINNER=?", (player_id,))  
-            result['wins'] = cur.fetchall()  
-              
-            # 查询平局（胜者和败者都是NULL，且玩家参与了比赛）  
-            cur.execute("SELECT game_id, DETAILTEXT, TIME FROM GameDetail WHERE WINNER IS NULL AND LOSER IS NULL AND player_id=?", (player_id,))  
-            result['ties'] = cur.fetchall()  
-              
-            # 查询败局  
-            cur.execute("SELECT game_id, DETAILTEXT, TIME FROM GameDetail WHERE LOSER=?", (player_id,))  
-            result['losses'] = cur.fetchall()  
-              
-    finally:  
-        con.close()  
-      
-    return result 
+def get_player_game_records(player_name):
+    # 这个函数返回特定玩家的胜局、平局、败局的游戏记录统计信息
+    con = get_or_create_db(DBFILE)
+    result = {
+        'wins': [],
+        'ties': [],
+        'losses': []
+    }
+
+    try:
+        cur = con.cursor()
+        cur.execute("SELECT PlayerID FROM Player WHERE PlayerName=?", (player_name,))
+        player_id = cur.fetchone()
+
+        if player_id:
+            player_id = player_id[0]  # 确保player_id是一个值
+
+            # 查询胜局
+            cur.execute("SELECT game_id, DETAILTEXT, TIME FROM GameDetail WHERE WINNER=?", (player_id,))
+            result['wins'] = cur.fetchall()
+
+            # 查询平局（胜者和败者都是NULL，且玩家参与了比赛）
+            cur.execute("SELECT game_id, DETAILTEXT, TIME FROM GameDetail WHERE WINNER IS NULL AND LOSER IS NULL AND player_id=?", (player_id,))
+            result['ties'] = cur.fetchall()
+
+            # 查询败局
+            cur.execute("SELECT game_id, DETAILTEXT, TIME FROM GameDetail WHERE LOSER=?", (player_id,))
+            result['losses'] = cur.fetchall()
+
+    finally:
+        con.close()
+
+    return result
 
 ############管理员操作#########################################################################
 def check_player_id(player_id):
@@ -181,7 +182,7 @@ def get_player_list():
         return player_list
     finally:
         con.close()
-        
+
 def get_admin_list():
     """查找数据库Admin表，获取管理员信息列表"""
     con = get_or_create_db(DBFILE)
@@ -195,7 +196,7 @@ def get_admin_list():
         return admin_list
     finally:
         con.close()
-        
+
 def get_game_list():
     """查找数据库GameDetail表，获取游戏细节列表"""
     con = get_or_create_db(DBFILE)
@@ -220,7 +221,7 @@ def insert_player(player_name, password, win, tie, lose, point):
         con.commit()
     finally:
         con.close()
-        
+
 def insert_admin(administrator_name, administrator_pw):
     """插入一条记录到Admin表"""
     con = get_or_create_db(DBFILE)
@@ -231,7 +232,7 @@ def insert_admin(administrator_name, administrator_pw):
         con.commit()
     finally:
         con.close()
-        
+
 def insert_game(player_id1, player_name1, player_id2, player_name2, location, duration, winner, loser):
     """插入一条记录到GameDetail表"""
     con = get_or_create_db(DBFILE)
@@ -240,6 +241,10 @@ def insert_game(player_id1, player_name1, player_id2, player_name2, location, du
                                       VALUES (?,?,?,?,?,?,?,?)'''
         con.execute(sql, (player_id1, player_name1, player_id2, player_name2, location, duration, winner, loser))
         con.commit()
+        print("Game detail inserted successfully.")
+    except sqlite3.Error as e:
+        print(f"插入游戏详情失败: {e}")
+        return False
     finally:
         con.close()
 
@@ -267,7 +272,7 @@ def update_player(player_id, player_name, password, win, tie, lose, point):
         con.commit()
     finally:
         con.close()
-        
+
 def update_admin(administrator_id, administrator_name, administrator_pw):
     """更新一条记录到Admin表"""
     con = get_or_create_db(DBFILE)
@@ -280,7 +285,7 @@ def update_admin(administrator_id, administrator_name, administrator_pw):
         con.commit()
     finally:
         con.close()
-        
+
 def update_game(game_id, player_id1, player_name1, player_id2, player_name2, location, duration, winner, loser):
     """更新一条记录到GameDetail表"""
     con = get_or_create_db(DBFILE)
@@ -309,7 +314,7 @@ def delete_player(player_id):
                                            ,PLAYERNAME1 = null
                                        WHERE PLAYERID1 = ?'''
         con.execute(sql_update_game_detail, (player_id,))
-        
+
         sql_update_game_detail2 = '''UPDATE GameDetail
                                         SET PLAYERID2 = null
                                             ,PLAYERNAME2 = null
@@ -320,9 +325,9 @@ def delete_player(player_id):
         con.execute(sql, (player_id,))
         con.commit()
     finally:
-        con.execute('PRAGMA foreign_keys = ON;')        
+        con.execute('PRAGMA foreign_keys = ON;')
         con.close()
-        
+
 def delete_admin(administrator_id):
     """从Admin表中删除一条记录"""
     con = get_or_create_db(DBFILE)
@@ -333,7 +338,7 @@ def delete_admin(administrator_id):
         con.commit()
     finally:
         con.close()
-        
+
 def delete_game(game_id):
     """从GameDetail表中删除一条记录"""
     con = get_or_create_db(DBFILE)
@@ -341,6 +346,44 @@ def delete_game(game_id):
         sql = '''DELETE FROM GameDetail
                     WHERE GAMEID = ?'''
         con.execute(sql, (game_id,))
+        con.commit()
+    finally:
+        con.close()
+
+
+
+
+def get_player_id_by_name(player_name):
+    """根据玩家名称查询玩家ID"""
+    con = get_or_create_db(DBFILE)
+    try:
+        sql = "SELECT PLAYERID FROM Player WHERE PLAYERNAME=?"
+        cur = con.execute(sql, (player_name,))
+        result = cur.fetchone()
+        if result:
+            return result[0]
+        else:
+            return None
+    finally:
+        con.close()
+
+def update_player_stats(winner_id, loser_id, is_tie, p1_id, p2_id):
+    con = get_or_create_db(DBFILE)
+    try:
+        if is_tie:
+            sql = '''UPDATE Player
+                     SET TIE = TIE + 1
+                     WHERE PLAYERID IN (?, ?)'''
+            con.execute(sql, (p1_id, p2_id))
+        else:
+            sql_winner = '''UPDATE Player
+                            SET WIN = WIN + 1, POINT = POINT + 1
+                            WHERE PLAYERID = ?'''
+            sql_loser = '''UPDATE Player
+                           SET LOSE = LOSE + 1, POINT = POINT - 1
+                           WHERE PLAYERID = ?'''
+            con.execute(sql_winner, (winner_id,))
+            con.execute(sql_loser, (loser_id,))
         con.commit()
     finally:
         con.close()
