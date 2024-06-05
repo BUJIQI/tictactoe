@@ -98,13 +98,13 @@ class PlayerFrame(wx.Frame):
          self.list_ctrl.DeleteAllItems()
          index = 0
          for record in game_records:
-             self.list_ctrl.InsertItem(index, record[0])
+             self.list_ctrl.InsertItem(index, str(record[0]))
              self.list_ctrl.SetItem(index, 1, record[1])
              self.list_ctrl.SetItem(index, 2, record[2])
-             self.list_ctrl.SetItem(index, 3, record[3])
-             self.list_ctrl.SetItem(index, 4, record[4])
-             self.list_ctrl.SetItem(index, 5, record[5])
-             self.list_ctrl.SetItem(index, 6, record[6])
+             self.list_ctrl.SetItem(index, 3, str(record[3]))
+             self.list_ctrl.SetItem(index, 4, str(record[4]))
+             self.list_ctrl.SetItem(index, 5, str(record[5]))
+             self.list_ctrl.SetItem(index, 6, str(record[6]))
              index += 1
   
     def on_radio_win(self, event):  
