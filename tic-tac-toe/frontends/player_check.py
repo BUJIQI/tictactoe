@@ -2,9 +2,16 @@ import wx
 import data as db
 
 class PlayerFrame(wx.Frame):  
-    def __init__(self, player_name, title="Player Information", *args, **kw):  
-        super(PlayerFrame, self).__init__(None, title=title, *args, **kw)  
+    def __init__(self, parent,player_name,title="Player Information"):    
+        # 确保 parent 作为位置参数传递，title 作为关键字参数传递  
+        super(PlayerFrame, self).__init__(parent, title=title)  # 这里不需要修改，已经是正确的  
         self.player_name = player_name  
+        # ... 其他初始化代码 ...
+  
+    
+        # 例如，在状态栏中显示用户名  
+        self.CreateStatusBar()  
+        self.SetStatusText('查看用户: {}'.format(self.player_name))  
         # 创建面板
         panel = wx.Panel(self)
         
@@ -129,19 +136,11 @@ class PlayerFrame(wx.Frame):
    
   
 # 示例用法   
-if __name__ == "__main__":  
-    app = wx.App(False)  
-    frame = PlayerFrame('PlayerNameExample', title='玩家查看')  
-    frame.Show()  
-    app.MainLoop()
-    
-
-        
 class MyApp(wx.App):
     def OnInit(self):
-        frame = PlayerFrame(None)
-        frame.Show(True)
-        return True
+        frame = PlayerFrame(None, 'aaa', title='玩家查看')  
+        frame.Show(True)  
+        return True  
 
 # 运行应用
 if __name__ == '__main__':
