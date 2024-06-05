@@ -4,12 +4,12 @@ import register_or_login
 import player_check
   
 class TicTacToePlayerFrame(wx.Frame):  
-    def __init__(self, parent, title, username, id):
+    def __init__(self, parent, title, username):
         style = wx.CLOSE_BOX | wx.CAPTION | wx.SYSTEM_MENU | wx.TAB_TRAVERSAL  
         super(TicTacToePlayerFrame, self).__init__(parent, title=title, size=(800, 600), style=style)  
         self.CreateStatusBar()  
         self.username = username  
-        self.id = id
+
         # 创建菜单栏  
         menubar = wx.MenuBar()  
           
@@ -54,7 +54,7 @@ class TicTacToePlayerFrame(wx.Frame):
 
     def OnNewGame(self, e):  
         # 这里可以添加开始新游戏的逻辑  
-        ui_play_frame = ui_play.MyFrame(None, title='井字棋', id=self.id)
+        ui_play_frame = ui_play.MyFrame(None, title='井字棋', username=self.username)
         ui_play_frame.Show()
 
   
@@ -71,7 +71,7 @@ class TicTacToePlayerFrame(wx.Frame):
 
 if __name__ == '__main__':
     app = wx.App(redirect=False)
-    frame = TicTacToePlayerFrame(None, '井字棋游戏 - 玩家', 'PlayerName','123')
+    frame = TicTacToePlayerFrame(None, '井字棋游戏 - 玩家', 'PlayerName')
     frame.CentreOnScreen() 
     frame.Show()
     app.MainLoop()
