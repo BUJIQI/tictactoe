@@ -6,8 +6,6 @@ class PlayerFrame(wx.Frame):
         # 确保 parent 作为位置参数传递，title 作为关键字参数传递  
         super(PlayerFrame, self).__init__(parent, title=title)  # 这里不需要修改，已经是正确的  
         self.player_name = player_name  
-        # ... 其他初始化代码 ...
-  
     
         # 例如，在状态栏中显示用户名  
         self.CreateStatusBar()  
@@ -49,7 +47,7 @@ class PlayerFrame(wx.Frame):
         
         # 创建退出按钮
         self.btn_exit = wx.Button(panel, label='退出')
-        
+                
         # 添加退出按钮到水平框架布局管理器中
         hbox_btn.AddStretchSpacer(1)
         hbox_btn.Add(self.btn_exit, 0, wx.ALL, 5)
@@ -61,15 +59,30 @@ class PlayerFrame(wx.Frame):
         # 设置面板的布局管理器
         panel.SetSizer(vbox)
     
-        # 绑定单选按钮事件
+        # 绑定按钮事件
         self.radio_basic_info.Bind(wx.EVT_RADIOBUTTON, self.on_radio_basic_info)
         self.radio_win.Bind(wx.EVT_RADIOBUTTON, self.on_radio_win)
         self.radio_tie.Bind(wx.EVT_RADIOBUTTON, self.on_radio_tie)
         self.radio_lose.Bind(wx.EVT_RADIOBUTTON, self.on_radio_lose)
+        self.Bind(wx.EVT_BUTTON, self.on_exit, self.btn_exit)
         
         # 设置窗口属性
         self.SetTitle('玩家查看')
         self.SetSize((629, 400))
+        
+        # 初始化basic
+        self.init_list1() 
+        game_records =db.get_player_game_records_basic(self.player_name)
+        index = 0
+        for record in game_records:
+            self.list_ctrl.InsertItem(index, str(record[0]))
+            self.list_ctrl.SetItem(index, 1, record[1])
+            self.list_ctrl.SetItem(index, 2, record[2])
+            self.list_ctrl.SetItem(index, 3, str(record[3]))
+            self.list_ctrl.SetItem(index, 4, str(record[4]))
+            self.list_ctrl.SetItem(index, 5, str(record[5]))
+            self.list_ctrl.SetItem(index, 6, str(record[6]))
+            index += 1
         self.Centre()
         
     def init_list1(self):
@@ -83,15 +96,13 @@ class PlayerFrame(wx.Frame):
         self.list_ctrl.InsertColumn(5, '败局', width=80)
         self.list_ctrl.InsertColumn(6, '得分', width=80)
               
-
     def init_list2(self):
         # 初始化列表框显示内容 (对局编号、对局详情、时长)
         self.list_ctrl.ClearAll()
         self.list_ctrl.InsertColumn(0, '游戏编号', width=100)
         self.list_ctrl.InsertColumn(1, '对局详情', width=350)
         self.list_ctrl.InsertColumn(2, '时长', width=150)  
-  
-  
+    
     def on_radio_basic_info(self, event): 
          self.init_list1() 
          game_records =db.get_player_game_records_basic(self.player_name)
@@ -132,7 +143,7 @@ class PlayerFrame(wx.Frame):
             index += 1  
             
     def on_exit(self, event):
-        self.Close()
+        self.Close(True)
    
   
 # 示例用法   
@@ -141,8 +152,3 @@ class MyApp(wx.App):
         frame = PlayerFrame(None, ' ', title='玩家查看')  
         frame.Show(True)  
         return True  
-
-# 运行应用
-if __name__ == '__main__':
-    app = MyApp()
-    app.MainLoop()
