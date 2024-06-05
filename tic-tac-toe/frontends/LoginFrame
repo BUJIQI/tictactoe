@@ -1,0 +1,13 @@
+import wx  
+import login  # 假设你的登录窗口类在login模块中  
+  
+class App(wx.App):  
+    def OnInit(self):  
+        self.login_frame = login.LoginFrame(None, title='登录')  
+        self.login_frame.Show()  
+        self.SetTopWindow(self.login_frame)  
+        return True  
+  
+if __name__ == '__main__':  
+    app = App(redirect=False)  
+    app.MainLoop()
