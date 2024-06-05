@@ -9,6 +9,7 @@ class TicTacToePlayerFrame(wx.Frame):
         super(TicTacToePlayerFrame, self).__init__(parent, title=title, size=(800, 600), style=style)  
         self.CreateStatusBar()  
         self.username = username  
+        self.SetStatusText('已登录用户: {}'.format(self.username))
 
         # 创建菜单栏  
         menubar = wx.MenuBar()  
@@ -60,9 +61,8 @@ class TicTacToePlayerFrame(wx.Frame):
   
     def OnViewHistory(self, e):  
         # 这里可以添加查看历史游戏的逻辑  
-        player_check_frame = player_check.PlayerFrame(None)
+        player_check_frame = player_check.PlayerFrame(self, 'PlayerNameExample', title='玩家查看')
         player_check_frame.Show()
-        self.Close()
   
     def OnAbout(self, e):  
         # 这里可以添加关于对话框的逻辑  
