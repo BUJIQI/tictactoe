@@ -13,6 +13,7 @@ from window.renderers import Window, WindowRenderer
 from window.players import WindowPlayer
 import re
 import data as db
+import json
 
 
 # 创建一个事件，用于更新时间
@@ -21,13 +22,14 @@ global conn
 conn = db.get_or_create_db('tictactoe.db')
 
 class MyFrame(wx.Frame):
-    def __init__(self, parent, title, id):
+    def __init__(self, parent, title, username):
         super(MyFrame, self).__init__(parent, title=title, size=(300, 250))
 
         # 设置窗口标题和大小
         self.SetSize((600, 400))
         self.Center()
-        self.id = id
+        self.username = username
+        self.p2_name = ''
 
         # 创建面板
         panel = wx.Panel(self)
@@ -39,11 +41,9 @@ class MyFrame(wx.Frame):
         left_panel = wx.Panel(panel)
         vbox_left = wx.BoxSizer(wx.VERTICAL)
         text_inf = wx.StaticText(left_panel, label="我的信息")
-        text_id = wx.StaticText(left_panel, label=f"Id:{self.id}")
-        text_score = wx.StaticText(left_panel, label="Points:")
+        text_id = wx.StaticText(left_panel, label=f"玩家1：{self.username}")
         vbox_left.Add(text_inf, 0, wx.ALL, 5)
         vbox_left.Add(text_id, 0, wx.ALL, 5)
-        vbox_left.Add(text_score, 0, wx.ALL, 5)
         left_panel.SetSizer(vbox_left)
         grid_sizer.Add(left_panel, pos=(0, 0), span=(2, 2), flag=wx.EXPAND | wx.ALL, border=15)
 
@@ -122,15 +122,13 @@ class MyFrame(wx.Frame):
         # 根据单选按钮的选择创建玩家
         player1 = WindowPlayer(Mark("X"), self.events)
         self.player1 = player1
-        global p2_id
         if self.radio1.GetValue():
             player2 = RandomComputerPlayer(Mark("O"))
-            self.p2_id = 111
+            self.p2_name = 'RandomComputer'
         elif self.radio2.GetValue():
             player2 = MinimaxComputerPlayer(Mark("O"))
-            self.p2_id = 999
+            self.p2_name = 'MinimaxComputer'
         else:
-            self.p2_id = 0
             player2 = WindowPlayer(Mark("O"), self.events)
         self.player2 = player2
         renderer = WindowRenderer(self)
@@ -160,23 +158,35 @@ class MyFrame(wx.Frame):
         elapsed_time = event.elapsed_time
         self.time_text.SetLabel(f"time：{str(elapsed_time).split('.')[0]}")
 
+
     def OnGameEnd(self, movelist, game_state):
         # 停止计时器
         wx.CallAfter(self.timer.Stop)
+        self.player1_id = db.get_player_id_by_name(self.username)
+        self.player2_id = db.get_player_id_by_name(self.p2_name)
+        winner = None
+        loser = None
+        is_tie = False
         if not game_state.tie:
             if self.player1.mark == game_state.winner.value:
-                result = 'Player1'
+                winner = self.player1_id
+                loser = self.player2_id
                 self.result_text.SetLabelText(f"Player 1 wins!")
             else:
-                result = 'Player2'
+                winner = self.player2_id
+                loser = self.player1_id
                 self.result_text.SetLabelText(f"Player 2 wins!")
 
         else:
             self.result_text.SetLabelText("Ties!")
-            result = 'Tie'
-        print(f'P1:{self.id}')
-        print(f'P2:{p2_id}')
-        print(f'winner:{result}')
+            is_tie = True
+
+        print(f'p1_id:{self.player1_id}')
+        print(f'p1_name:{self.username}')
+        print(f'p2_id:{self.player2_id}')
+        print(f'p2_name:{self.p2_name}')
+        print(f'winner:{winner}')
+        print(f'loser:{loser}')
         print(f'time:{str(elapsed_time)}')
         regex = r"Move\(mark=<([A-Za-z.]+): '([XO])'>, cell_index=(\d+)"
         matches = re.findall(regex, str(movelist))
@@ -186,37 +196,55 @@ class MyFrame(wx.Frame):
             cell_index = int(match[2])
             mark_log += mark + str(cell_index+1) + ','
         print(f'对局细节：{mark_log}')
-        db.insert_game_detail(self.id, 'test1', p2_id, 'test2', mark_log, str(elapsed_time), result)
+        db.insert_game(self.player1_id, self.username, self.player2_id, self.p2_name, mark_log, str(elapsed_time), winner, loser)
+        db.update_player_stats(winner, loser, is_tie, self.player1_id, self.player2_id)
+        game_data = {
+            'p1_id': self.player1_id,
+            'p1_name': self.username,
+            'p2_id': self.player2_id,
+            'p2_name': self.p2_name,
+            'winner': winner,
+            'loser': loser,
+            'time': str(elapsed_time),
+            '对局细节': mark_log.rstrip(',')
+        }
+
+        self.write_game_data_to_json(game_data)
+
+    def write_game_data_to_json(self, game_data):
+        try:
+            with open('game_data.json', 'a', encoding='utf-8') as json_file:
+                json.dump(game_data, json_file, ensure_ascii=False, indent=4)
+                json_file.write('\n')
+        except IOError as e:
+            print(f"Failed to write game data to JSON file: {e}")
 
     # 添加玩家键
     def add_player(self, event):
         self.radio1.SetValue(False)
         self.radio2.SetValue(False)
-        login_frame = Login(None, title='登录', button=self.button, p2_inf=self.p2_inf)
+
+        import login
+        class Login(login.LoginWindow):
+            def __init__(self, parent, title, button, p2_inf, callback):
+                super(Login, self).__init__(parent, title=title)
+                self.button = button
+                self.p2_inf = p2_inf
+                self.callback = callback  # 保存回调函数
+
+            def onLogin(self, e):
+                self.p2_name = self.inputTextUserName.GetValue()
+                self.password = self.inputTextPassword.GetValue()
+                self.Close()
+                self.button.Destroy()
+                self.p2_inf.SetLabelText(f'玩家2：{self.p2_name}')
+                self.callback(self.p2_name)  # 调用回调函数并传递p2_name
+
+        def set_p2_name(p2_name):
+            self.p2_name = p2_name
+
+        login_frame = Login(None, title='登录', button=self.button, p2_inf=self.p2_inf, callback=set_p2_name)
         login_frame.Show()
-
-
-
-
-
-
-import login
-class Login(login.LoginWindow):
-    def __init__(self, parent, title, button, p2_inf):
-        super(Login, self).__init__(parent, title=title)
-        self.button = button
-        self.p2_inf = p2_inf
-
-
-    def on_login(self, e):
-        self.userid = self.inputTextUserID.GetValue()
-        self.password = self.inputTextPassword.GetValue()
-        self.Close()
-        self.button.Destroy()
-        self.p2_inf.SetLabelText(f'玩家2  ID:{self.userid}')
-        global p2_id
-        p2_id = int(self.userid)
-
 
 
 
