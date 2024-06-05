@@ -141,7 +141,7 @@ def get_player_game_records(player_name):
             result['wins'] = cur.fetchall()
 
             # 查询平局（胜者和败者都是NULL，且玩家参与了比赛）
-            cur.execute("SELECT GAMEID, DETAILTEXT, TIME FROM GameDetail WHERE WINNER IS NULL AND LOSER IS NULL AND player_id=?", (player_id,))
+            cur.execute("SELECT GAMEID, DETAILTEXT, TIME FROM GameDetail WHERE WINNER IS NULL AND LOSER IS NULL AND PlayerID1=?", (player_id,))
             result['ties'] = cur.fetchall()
 
             # 查询败局
