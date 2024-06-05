@@ -138,7 +138,7 @@ class PlayerFrame(wx.Frame):
 # 示例用法   
 class MyApp(wx.App):
     def OnInit(self):
-        frame = PlayerFrame(None, 'aaa', title='玩家查看')  
+        frame = PlayerFrame(None, ' ', title='玩家查看')  
         frame.Show(True)  
         return True  
 
