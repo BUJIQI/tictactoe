@@ -13,7 +13,7 @@ class RegisterWindow(wx.Frame):
         btnSizer = wx.BoxSizer(wx.HORIZONTAL)
         
         labelUser = wx.StaticText(panel, label="用户名:")
-        self.inputTextUserID = wx.TextCtrl(panel)
+        self.inputTextUserName = wx.TextCtrl(panel)
         
         labelPassword = wx.StaticText(panel, label="密码:")
         self.inputTextPassword = wx.TextCtrl(panel, style=wx.TE_PASSWORD)
@@ -32,7 +32,7 @@ class RegisterWindow(wx.Frame):
         btnSizer = wx.BoxSizer(wx.HORIZONTAL)
 
         userSizer.Add(labelUser, 0, wx.ALL, 5)
-        userSizer.Add(self.inputTextUserID, 0, wx.ALL, 5)
+        userSizer.Add(self.inputTextUserName, 0, wx.ALL, 5)
         passwordSizer.Add(labelPassword, 0, wx.ALL, 5)
         passwordSizer.Add(self.inputTextPassword, 0, wx.ALL, 5)
         usertypeSizer.Add(self.rboxUserType)
@@ -52,29 +52,26 @@ class RegisterWindow(wx.Frame):
         self.Center()
         
     def onRegister(self, e):
-        userid = self.inputTextUserID.GetValue()
+        username = self.inputTextUserName.GetValue()
         password = self.inputTextPassword.GetValue()
         UserType = self.rboxUserType.GetStringSelection()
     
-        if len(userid.strip()) == 0:
+        if len(username.strip()) == 0:
             wx.MessageBox('请输入用户名！')
-            self.inputTextUserID.SetFocus()
+            self.inputTextUserName.SetFocus()
             return None
         if len(password.strip()) == 0:
             wx.MessageBox('请输入注册密码！')
             self.inputTextPassword.SetFocus()
             return None
     
-    # 在注册成功后返回登录界面
-        conn = db.get_or_create_db('tictactoe.db')  
-        try:  
-           if db.register(userid, password,UserType):  
-               wx.MessageBox('注册成功！')  
-               self.OnReturnLogin(e)  
-           else:  
-               wx.MessageBox('注册失败！')  
-        finally:  
-           conn.close()
+    # 在注册成功后返回登录界面 
+        if db.register(username, password,UserType):  
+            wx.MessageBox('注册成功！')  
+            self.OnReturnLogin(e)  
+        else:  
+            wx.MessageBox('注册失败！')  
+
     
     def OnReturnLogin(self, e):  
     # 返回登录界面的逻辑  
