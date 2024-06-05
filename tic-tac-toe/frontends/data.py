@@ -137,15 +137,15 @@ def get_player_game_records(player_name):
             player_id = player_id[0]  # 确保player_id是一个值
 
             # 查询胜局
-            cur.execute("SELECT game_id, DETAILTEXT, TIME FROM GameDetail WHERE WINNER=?", (player_id,))
+            cur.execute("SELECT GAMEID, DETAILTEXT, TIME FROM GameDetail WHERE WINNER=?", (player_id,))
             result['wins'] = cur.fetchall()
 
             # 查询平局（胜者和败者都是NULL，且玩家参与了比赛）
-            cur.execute("SELECT game_id, DETAILTEXT, TIME FROM GameDetail WHERE WINNER IS NULL AND LOSER IS NULL AND player_id=?", (player_id,))
+            cur.execute("SELECT GAMEID, DETAILTEXT, TIME FROM GameDetail WHERE WINNER IS NULL AND LOSER IS NULL AND player_id=?", (player_id,))
             result['ties'] = cur.fetchall()
 
             # 查询败局
-            cur.execute("SELECT game_id, DETAILTEXT, TIME FROM GameDetail WHERE LOSER=?", (player_id,))
+            cur.execute("SELECT GAMEID, DETAILTEXT, TIME FROM GameDetail WHERE LOSER=?", (player_id,))
             result['losses'] = cur.fetchall()
 
     finally:
