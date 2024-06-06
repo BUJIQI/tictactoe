@@ -89,9 +89,23 @@ def login(username, password):
         row2 = cur2.fetchone()
 
         if row1 or row2:
-            return row1[1]
+            return True
         else:
             return False
+    finally:
+        con.close()
+
+def get_player_id_by_name(player_name):
+    """根据玩家名称查询玩家ID"""
+    con = get_or_create_db(DBFILE)
+    try:
+        sql = "SELECT PLAYERID FROM Player WHERE PLAYERNAME=?"
+        cur = con.execute(sql, (player_name,))
+        result = cur.fetchone()
+        if result:
+            return result[0]
+        else:
+            return None
     finally:
         con.close()
 
@@ -350,23 +364,7 @@ def delete_game(game_id):
     finally:
         con.close()
 
-
-
-
-def get_player_id_by_name(player_name):
-    """根据玩家名称查询玩家ID"""
-    con = get_or_create_db(DBFILE)
-    try:
-        sql = "SELECT PLAYERID FROM Player WHERE PLAYERNAME=?"
-        cur = con.execute(sql, (player_name,))
-        result = cur.fetchone()
-        if result:
-            return result[0]
-        else:
-            return None
-    finally:
-        con.close()
-
+############游戏#########################################################################
 def update_player_stats(winner_id, loser_id, is_tie, p1_id, p2_id):
     con = get_or_create_db(DBFILE)
     try:
