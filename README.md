@@ -2,7 +2,7 @@
 
 运行主程序为tic-tac-toe\frontends\game_main.py
 
-运行前需将tictactoe-main\tic-tac-toe\library\src设为sources root
+**运行前需将tictactoe-main\tic-tac-toe\library\src设为sources root**
 # 玩家部分：
 开始新游戏：玩家-开始新游戏。
 
