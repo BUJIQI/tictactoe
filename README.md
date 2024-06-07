@@ -27,85 +27,50 @@
 项目结构如下：
 ```python
 
-tic-tac-toe
-    ├─frontends
-    │  │  administrator_check.py
-    │  │  admin_main.py
-    │  │  data.py
-    │  │  game_data.json
-    │  │  game_main.py
-    │  │  login.py
-    │  │  play.py
-    │  │  player_check.py
-    │  │  player_main.py
-    │  │  register.py
-    │  │  tictactoe.db
-    │  │  ui_play.py
-    │  │  
-    │  ├─window
-    │  │  │  cli.py
-    │  │  │  players.py
-    │  │  │  renderers.py
-    │  │  │  __init__.py
-    │  │  │  __main__.py
-    │  │  │  
-    │  │  └─__pycache__
-    │  │          players.cpython-312.pyc
-    │  │          renderers.cpython-312.pyc
-    │  │          __init__.cpython-312.pyc
-    │  │          
-    │  └─__pycache__
-    │          administrator_check.cpython-312.pyc
-    │          admin_main.cpython-312.pyc
-    │          data.cpython-312.pyc
-    │          game_main.cpython-312.pyc
-    │          login.cpython-312.pyc
-    │          play.cpython-312.pyc
-    │          player_check.cpython-312.pyc
-    │          player_main.cpython-312.pyc
-    │          register.cpython-312.pyc
-    │          register_or_login.cpython-312.pyc
-    │          ui_play.cpython-312.pyc
-    │          
-    └─library
-        │  LICENSE
-        │  MANIFEST.in
-        │  pyproject.toml
-        │  README.md
-        │  
-        └─src
-            └─tic_tac_toe
-                │  __init__.py
-                │  
-                ├─game
-                │  │  engine.py
-                │  │  engine_async.py
-                │  │  players.py
-                │  │  players_async.py
-                │  │  renderers.py
-                │  │  __init__.py
-                │  │  
-                │  └─__pycache__
-                │          engine.cpython-312.pyc
-                │          players.cpython-312.pyc
-                │          renderers.cpython-312.pyc
-                │          __init__.cpython-312.pyc
-                │          
-                ├─logic
-                │  │  exceptions.py
-                │  │  minimax.json
-                │  │  minimax.py
-                │  │  models.py
-                │  │  validators.py
-                │  │  __init__.py
-                │  │  
-                │  └─__pycache__
-                │          exceptions.cpython-312.pyc
-                │          minimax.cpython-312.pyc
-                │          models.cpython-312.pyc
-                │          validators.cpython-312.pyc
-                │          __init__.cpython-312.pyc
-                │          
-                └─__pycache__
-                        __init__.cpython-312.pyc
+tic-tac-toe/
+│
+├── frontends/
+│   ├── administrator_check.py
+│   ├── admin_main.py
+│   ├── data.py
+│   ├── game_data.json
+│   ├── game_main.py
+│   ├── login.py
+│   ├── play.py
+│   ├── player_check.py
+│   ├── player_main.py
+│   ├── register.py
+│   ├── tictactoe.db
+│   ├── ui_play.py
+│   ├── window/
+│   │   ├── cli.py
+│   │   ├── players.py
+│   │   ├── renderers.py
+│   │   ├── __init__.py
+│   │   └── __main__.py
+│   └── __init__.py
+│
+├── library/
+│   ├── LICENSE
+│   ├── MANIFEST.in
+│   ├── pyproject.toml
+│   ├── README.md
+│   └── src/
+│       └── tic_tac_toe/
+│           ├── __init__.py
+│           ├── game/
+│           │   ├── engine.py
+│           │   ├── engine_async.py
+│           │   ├── players.py
+│           │   ├── players_async.py
+│           │   ├── renderers.py
+│           │   └── __init__.py
+│           ├── logic/
+│           │   ├── exceptions.py
+│           │   ├── minimax.json
+│           │   ├── minimax.py
+│           │   ├── models.py
+│           │   ├── validators.py
+│           │   └── __init__.py
+│           └── __init__.py
                         
