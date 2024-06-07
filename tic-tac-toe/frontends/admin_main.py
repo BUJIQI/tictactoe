@@ -43,7 +43,7 @@ class TicTacToeAdminFrame(wx.Frame):
     
     def OnReturnLogin(self, e):  
     # 这里应该添加返回登录界面的逻辑  
-        register_or_login_frame = register_or_login.MyFrame(None, title='井字棋')
+        register_or_login_frame = game_main.MyFrame(None, title='井字棋')
         register_or_login_frame.Show()
         self.Close()
   
