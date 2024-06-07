@@ -18,8 +18,8 @@
 
 项目结构如下：
 ```python
-E:.
-│  tree.txt
+
+tree.txt
 │  
 └─tic-tac-toe
     ├─frontends
