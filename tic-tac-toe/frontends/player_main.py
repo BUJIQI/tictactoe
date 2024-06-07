@@ -60,7 +60,7 @@ class TicTacToePlayerFrame(wx.Frame):
 
     def OnViewHistory(self, e):
         # 这里可以添加查看历史游戏的逻辑  
-        player_check_frame = player_check.PlayerFrame(None)
+        player_check_frame = player_check.PlayerFrame(None, self.username)
         player_check_frame.Show()
         self.Close()
 
