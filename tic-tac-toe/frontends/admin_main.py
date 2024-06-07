@@ -1,5 +1,5 @@
 import wx
-import register_or_login
+import game_main
 import administrator_check
   
 class TicTacToeAdminFrame(wx.Frame):  
