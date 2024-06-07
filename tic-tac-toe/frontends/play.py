@@ -36,5 +36,4 @@ def main():
     # 运行 wxPython 主循环
     app.MainLoop()
 
-if __name__ == "__main__":
-    main()
+
