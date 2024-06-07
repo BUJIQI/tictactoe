@@ -1,6 +1,6 @@
 import wx
 import ui_play
-import register_or_login
+import game_main
 import player_check
   
 class TicTacToePlayerFrame(wx.Frame):  
@@ -69,9 +69,4 @@ class TicTacToePlayerFrame(wx.Frame):
         print("关于井字棋游戏")
   
 
-if __name__ == '__main__':
-    app = wx.App(redirect=False)
-    frame = TicTacToePlayerFrame(None, '井字棋游戏 - 玩家', 'PlayerName')
-    frame.CentreOnScreen() 
-    frame.Show()
-    app.MainLoop()
+
