@@ -75,7 +75,7 @@ class RegisterWindow(wx.Frame):
     
     def OnReturnLogin(self, e):  
     # 返回登录界面的逻辑  
-        register_or_login_frame = register_or_login.MyFrame(None, title='井字棋')
+        register_or_login_frame = game-main.MyFrame(None, title='井字棋')
         register_or_login_frame.Show()
         self.Close()
 
