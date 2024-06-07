@@ -58,9 +58,3 @@ class TicTacToeAdminFrame(wx.Frame):
         print("关于井字棋游戏")  
   
 
-if __name__ == '__main__':
-    app = wx.App(redirect=False)
-    frame = TicTacToeAdminFrame(None, '井字棋游戏 - 管理者', 'AdminName')
-    frame.CentreOnScreen() 
-    frame.Show()
-    app.MainLoop()
