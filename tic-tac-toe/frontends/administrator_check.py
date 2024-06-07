@@ -655,8 +655,3 @@ class UserWindow(wx.Frame):
         """退出程序"""
         self.Close(True)  # 关闭顶层框架窗口
 
-if __name__ == '__main__':
-    app = wx.App(False)
-    frame = UserWindow(None, "管理员操作")
-    frame.Show()
-    app.MainLoop()
