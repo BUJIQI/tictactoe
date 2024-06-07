@@ -88,9 +88,4 @@ class LoginWindow(wx.Frame):
         self.Close(True)
 
 
-if __name__ == '__main__':
-    app = wx.App(redirect=False)
-    frame = LoginWindow(None, "登录")
-    frame.CentreOnScreen()
-    frame.Show()
-    app.MainLoop()
+
