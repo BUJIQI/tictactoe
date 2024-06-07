@@ -19,9 +19,7 @@
 项目结构如下：
 ```python
 
-tree.txt
-│  
-└─tic-tac-toe
+tic-tac-toe
     ├─frontends
     │  │  administrator_check.py
     │  │  admin_main.py
