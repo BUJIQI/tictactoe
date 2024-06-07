@@ -1,5 +1,5 @@
 import wx
-import register_or_login
+import game_main
 import data as db
 
 class RegisterWindow(wx.Frame):
@@ -84,9 +84,4 @@ class RegisterWindow(wx.Frame):
         self.Close(True)
         
         
-if __name__ == '__main__':
-    app = wx.App(redirect=False)
-    frame = RegisterWindow(None, "注册")
-    frame.CentreOnScreen() 
-    frame.Show()
-    app.MainLoop()
+
