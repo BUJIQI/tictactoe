@@ -51,7 +51,6 @@ class TicTacToePlayerFrame(wx.Frame):
         # 这里应该添加返回登录界面的逻辑  
         register_or_login_frame = game_main.MyFrame(None, title='井字棋')
         register_or_login_frame.Show()
-        self.Close()
 
     def OnNewGame(self, e):
         # 这里可以添加开始新游戏的逻辑  
@@ -62,7 +61,6 @@ class TicTacToePlayerFrame(wx.Frame):
         # 这里可以添加查看历史游戏的逻辑  
         player_check_frame = player_check.PlayerFrame(None, self.username)
         player_check_frame.Show()
-        self.Close()
 
     def OnAbout(self, e):
         description = '''
