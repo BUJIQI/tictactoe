@@ -75,24 +75,26 @@ def register(username, password, UserType):
         con.close()
 
 ############用户登录#########################################################################
-def login(username, password):
-    con = get_or_create_db(DBFILE)
-    try:
-        sql_pattern1 = '''SELECT PLAYERNAME, PASSWORD FROM Player WHERE PLAYERNAME="{0}" AND PASSWORD="{1}"'''
-        sql1 = sql_pattern1.format(username, password)
-        cur1 = con.execute(sql1)
-        row1 = cur1.fetchone()
-
-        sql_pattern2 = '''SELECT ADMINNAME, PASSWORD FROM Admin WHERE ADMINNAME="{0}" AND PASSWORD="{1}"'''
-        sql2 = sql_pattern2.format(username, password)
-        cur2 = con.execute(sql2)
-        row2 = cur2.fetchone()
-
-        if row1 or row2:
-            return True
-        else:
-            return False
-    finally:
+def login(username, password,UserType):  
+    con = get_or_create_db(DBFILE)  
+    try:  
+        if UserType == "管理员":  
+            sql_pattern = '''SELECT ADMINNAME, PASSWORD FROM Admin WHERE ADMINNAME=? AND PASSWORD=?'''  
+            cur = con.execute(sql_pattern, (username, password))  
+            row = cur.fetchone()  
+            if row:  
+                return True  
+            else:  
+                return False  
+        elif UserType == "玩家":  
+            sql_pattern = '''SELECT PLAYERNAME, PASSWORD FROM Player WHERE PLAYERNAME=? AND PASSWORD=?'''  
+            cur = con.execute(sql_pattern, (username, password))  
+            row = cur.fetchone()  
+            if row:  
+                return True  
+            else:  
+                return False  
+    finally:  
         con.close()
 
 def get_player_id_by_name(player_name):
