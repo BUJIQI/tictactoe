@@ -68,7 +68,7 @@ class LoginWindow(wx.Frame):
             return None
 
 
-        if db.login(username, password):
+        if db.login(username, password,UserType):
             wx.MessageBox('登录成功！')
             if self.rboxUserType.GetSelection() == 0:
                 if username and password:
