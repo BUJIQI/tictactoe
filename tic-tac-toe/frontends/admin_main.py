@@ -45,14 +45,11 @@ class TicTacToeAdminFrame(wx.Frame):
     # 这里应该添加返回登录界面的逻辑  
         register_or_login_frame = game_main.MyFrame(None, title='井字棋')
         register_or_login_frame.Show()
-        self.Close()
   
     def OnViewGames(self, e):  
         # 这里可以添加查看所有游戏记录的逻辑  
-        administrator_check_frame = administrator_check.UserWindow(None, title='登录')
+        administrator_check_frame = administrator_check.UserWindow(None, title='管理员查看')
         administrator_check_frame.Show()
-        self.Close()
-  
 
     def OnAbout(self, e):
         description = '''
